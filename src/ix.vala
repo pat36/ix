@@ -6,12 +6,13 @@ public class IXviewer : GLib.Object {
     public int image_number;
     public int height;
     public int width;
-
+    public int zoom;
 
     public IXviewer(int _height, int _width) {
         image_number = 0;
         height = _height;
         width = _width;
+        zoom = 1;
         window = new Gtk.Window();
         window.set_title("ix - Image Viewer");
         window.set_default_size(height, width);  
@@ -26,12 +27,32 @@ public class IXviewer : GLib.Object {
     
     public void change_image(int number) {
         try{
+            zoom = 1;
+            window.set_title(images[number]);
             this.image.set_from_pixbuf(new Gdk.Pixbuf.from_file_at_size(images[number], (int)height, (int)width));
         } catch(GLib.Error e) {
             return;
         }
     }
-    
+    public void change_image_size(int symbol) {
+        try {
+            if(symbol == 1) {
+                zoom += 1;
+            } else {
+                zoom -= 1;
+            }
+            if(zoom <= 0) zoom = 1;
+            this.image.set_from_pixbuf(
+                new Gdk.Pixbuf.from_file_at_size(
+                    images[image_number],
+                    zoom * (int)height,
+                    zoom * (int)width
+                )
+            );
+        } catch(GLib.Error e) {
+            return;
+        }
+    }
     public void on_destroy(Gtk.Widget window) {
         Gtk.main_quit();
     }
@@ -47,6 +68,16 @@ public class IXviewer : GLib.Object {
                 if(image_number < 0) image_number = images.length-1;
                 this.change_image(image_number);
                 break;
+            case Gdk.Key.q:
+                Gtk.main_quit();
+                break;
+            case Gdk.Key.plus:
+                this.change_image_size(1);
+                break;
+            case Gdk.Key.minus:
+                this.change_image_size(0);
+                break;
+
         }
         return true;
     }
