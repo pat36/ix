@@ -28,7 +28,10 @@ public class IXviewer : GLib.Object {
     public void change_image(int number) {
         try{
             zoom = 1;
-            window.set_title(images[number]);
+            string path = images[number];
+            int len = images.length;
+            string str = @"$path [$(number+1)/$(len+1)]";
+            window.set_title(str);
             this.image.set_from_pixbuf(new Gdk.Pixbuf.from_file_at_size(images[number], (int)height, (int)width));
         } catch(GLib.Error e) {
             return;
@@ -36,11 +39,8 @@ public class IXviewer : GLib.Object {
     }
     public void change_image_size(int symbol) {
         try {
-            if(symbol == 1) {
-                zoom += 1;
-            } else {
-                zoom -= 1;
-            }
+            if(symbol == 1) zoom += 1;
+            if(symbol == 0) zoom -= 1;
             if(zoom <= 0) zoom = 1;
             this.image.set_from_pixbuf(
                 new Gdk.Pixbuf.from_file_at_size(
